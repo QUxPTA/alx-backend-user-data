@@ -20,3 +20,7 @@ def filter_datum(fields, redaction, message, separator):
     """
     pattern = f"({'|'.join(fields)})=[^{separator}]*"
     return re.sub(pattern, lambda m: f"{m.group().split('=')[0]}={redaction}", message)
+
+
+if __name__ == '__main__':
+    main()
