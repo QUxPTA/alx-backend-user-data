@@ -32,7 +32,8 @@ class Auth:
         Retrieves the authorization header from a request
 
         Args:
-            request (flask.Request, optional): The request object. Defaults to None.
+            request (flask.Request, optional):
+            The request object. Defaults to None.
 
         Returns:
             str: None (will be implemented later)
@@ -44,7 +45,8 @@ class Auth:
         Retrieves the current user from a request
 
         Args:
-            request (flask.Request, optional): The request object. Defaults to None.
+            request (flask.Request, optional):
+            The request object. Defaults to None.
 
         Returns:
             User: None (will be implemented later)
