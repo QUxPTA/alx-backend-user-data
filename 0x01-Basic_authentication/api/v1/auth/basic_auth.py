@@ -78,7 +78,8 @@ class BasicAuth(Auth):
             ":", 1)
         return user_email, user_password
 
-    def user_object_from_credentials(self, user_email: str, user_pwd: str) -> User:
+    def user_object_from_credentials(self,
+                                     user_email: str, user_pwd: str) -> User:
         """
         Return the User instance based on his email and password
 
@@ -100,3 +101,31 @@ class BasicAuth(Auth):
         if not user.is_valid_password(user_pwd):
             return None
         return user
+
+    def current_user(self, request=None) -> User:
+        """
+        Retrieve the User instance for a request
+
+        Args:
+            request (flask.Request, optional):
+            The request object. Defaults to None.
+
+        Returns:
+            User: The User instance, or None if invalid
+        """
+        if request is None:
+            return None
+        authorization_header = request.headers.get('Authorization')
+        base64_authorization_header = self.extract_base64_authorization_header(
+            authorization_header)
+        if base64_authorization_header is None:
+            return None
+        decoded_base64_authorization_header = self.decode_base64_authorization_header(
+            base64_authorization_header)
+        if decoded_base64_authorization_header is None:
+            return None
+        user_email, user_password = self.extract_user_credentials(
+            decoded_base64_authorization_header)
+        if user_email is None or user_password is None:
+            return None
+        return self.user_object_from_credentials(user_email, user_password)
