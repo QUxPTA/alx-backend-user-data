@@ -12,7 +12,7 @@
 
 | Task                                             | File                                                                                                                             |
 | ------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------- |
-| 0. Simple-basic-API                              | [SOON](./)                                                                                                                       |
+| 0. Simple-basic-API                              | [0x01-Basic_authentication](./0x01-Basic_authentication)                                                                         |
 | 1. Error handler: Unauthorized                   | [api/v1/app.py](./api/v1/app.py), [api/v1/views/index.py](./api/v1/views/index.py)                                               |
 | 2. Error handler: Forbidden                      | [api/v1/app.py](./api/v1/app.py), [api/v1/views/index.py](./api/v1/views/index.py)                                               |
 | 3. Auth class                                    | [api/v1/auth](./api/v1/auth), [api/v1/auth/**init**.py](./api/v1/auth/__init__.py), [api/v1/auth/auth.py](./api/v1/auth/auth.py) |
