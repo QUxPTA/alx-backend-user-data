@@ -2,9 +2,10 @@
 """DB module
 """
 from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.exc import InvalidRequestError
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm.session import Session
+from sqlalchemy.orm.exc import NoResultFound
 
 from user import Base, User
 
@@ -13,10 +14,10 @@ class DB:
     """DB class
     """
 
-    def __init__(self) -> None:
+    def __init__(self, echo=False) -> None:
         """Initialize a new DB instance
         """
-        self._engine = create_engine("sqlite:///a.db", echo=True)
+        self._engine = create_engine("sqlite:///a.db", echo=echo)
         Base.metadata.drop_all(self._engine)
         Base.metadata.create_all(self._engine)
         self.__session = None
@@ -45,3 +46,26 @@ class DB:
         self._session.add(user)
         self._session.commit()
         return user
+
+    def find_user_by(self, **kwargs) -> User:
+        """
+        Find a user in the database based on the provided keyword arguments.
+
+        Args:
+            **kwargs: Arbitrary keyword arguments to filter the query.
+
+        Returns:
+            User: The user found in the database.
+
+        Raises:
+            NoResultFound: If no user is found based on the provided filters.
+            InvalidRequestError: If incorrect query arguments are passed.
+        """
+        try:
+            user = self._session.query(User).filter_by(**kwargs).one()
+            return user
+        except NoResultFound as e:
+            raise NoResultFound(
+                "No user found with the provided filters") from e
+        except InvalidRequestError as e:
+            raise InvalidRequestError("Incorrect query arguments") from e
