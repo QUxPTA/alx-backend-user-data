@@ -3,12 +3,13 @@
 This module defines the User model for the users table using SQLAlchemy.
 """
 
-from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy import Column, Integer, String
 
-db = SQLAlchemy()
+Base = declarative_base()
 
 
-class User(db.Model):
+class User(Base):
     """
     User model for the users table.
 
@@ -19,9 +20,10 @@ class User(db.Model):
         session_id (str): The session ID of the user. Nullable.
         reset_token (str): The reset token for password reset. Nullable.
     """
+    __tablename__ = 'users'
 
-    id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(255), nullable=False, unique=True)
-    hashed_password = db.Column(db.String(255), nullable=False)
-    session_id = db.Column(db.String(255), nullable=True)
-    reset_token = db.Column(db.String(255), nullable=True)
+    id = Column(Integer, primary_key=True)
+    email = Column(String(255), nullable=False, unique=True)
+    hashed_password = Column(String(255), nullable=False)
+    session_id = Column(String(255), nullable=True)
+    reset_token = Column(String(255), nullable=True)
