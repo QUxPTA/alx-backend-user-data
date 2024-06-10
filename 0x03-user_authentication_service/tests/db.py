@@ -69,3 +69,23 @@ class DB:
                 "No user found with the provided filters") from e
         except InvalidRequestError as e:
             raise InvalidRequestError("Incorrect query arguments") from e
+
+    def update_user(self, user_id: int, **kwargs) -> None:
+        """
+        Update a user's attributes.
+
+        Args:
+            user_id (int): The ID of the user to update.
+            **kwargs: Arbitrary keyword arguments to update the user's attributes.
+
+        Raises:
+            ValueError: If any argument does not correspond to a user attribute.
+        """
+        user = self.find_user_by(id=user_id)
+
+        for key, value in kwargs.items():
+            if not hasattr(user, key):
+                raise ValueError(f"User has no attribute '{key}'")
+            setattr(user, key, value)
+
+        self._session.commit()
