@@ -2,10 +2,10 @@
 """
 Auth module
 """
-import bcrypt
 import uuid
+import bcrypt
 from db import DB, User
-from sqlalchemy.exc import NoResultFound
+from sqlalchemy.exc import NoResultFound, InvalidRequestError
 
 
 def _hash_password(password: str) -> bytes:
@@ -39,6 +39,12 @@ class Auth:
     """
 
     def __init__(self):
+        """
+        Initialize a new Auth instance.
+
+        This constructor initializes a new instance of the Auth class and 
+        creates an instance of the DB class for database interactions.
+        """
         self._db = DB()
 
     def register_user(self, email: str, password: str) -> User:
@@ -83,7 +89,29 @@ class Auth:
             # Check if the provided password matches the stored hashed password
             if bcrypt.checkpw(password.encode('utf-8'), user.hashed_password):
                 return True
-            else:
-                return False
+            return False
         except NoResultFound:
             return False
+
+    def create_session(self, email: str) -> str:
+        """
+        Create a session for a user and return the session ID.
+
+        Args:
+            email (str): The email of the user.
+
+        Returns:
+            str: The session ID, or None if no user is found.
+        """
+        try:
+            # Locate the user by email
+            user = self._db.find_user_by(email=email)
+            # Generate a new UUID for the session ID
+            session_id = _generate_uuid()
+            # Update the user's session_id in the database
+            self._db.update_user(user.id, session_id=session_id)
+            return session_id
+        except NoResultFound:
+            return None
+        except InvalidRequestError:
+            raise ValueError("Invalid query arguments")
