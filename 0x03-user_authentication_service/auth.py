@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
-"""auth module
+"""
+Auth module
 """
 import bcrypt
+import uuid
 from db import DB, User
 from sqlalchemy.exc import NoResultFound
 
@@ -21,8 +23,19 @@ def _hash_password(password: str) -> bytes:
     return hashed
 
 
+def _generate_uuid() -> str:
+    """
+    Generate a new UUID.
+
+    Returns:
+        str: The string representation of the UUID.
+    """
+    return str(uuid.uuid4())
+
+
 class Auth:
-    """Auth class to interact with the authentication database.
+    """
+    Auth class to interact with the authentication database.
     """
 
     def __init__(self):
@@ -70,6 +83,7 @@ class Auth:
             # Check if the provided password matches the stored hashed password
             if bcrypt.checkpw(password.encode('utf-8'), user.hashed_password):
                 return True
-            return False
+            else:
+                return False
         except NoResultFound:
             return False
