@@ -9,23 +9,30 @@ BASE_URL = "http://0.0.0.0:5000"
 def register_user(email: str, password: str) -> None:
     """Register a new user."""
     response = requests.post(
-        f"{BASE_URL}/users", data={"email": email, "password": password})
+        f"{BASE_URL}/users", data={"email": email, "password": password}
+    )
     assert response.status_code == 200, "Failed to register user"
     assert response.json() == {
-        "email": email, "message": "user created"}, "Unexpected response payload"
+        "email": email,
+        "message": "user created"
+    }, "Unexpected response payload"
 
 
 def log_in_wrong_password(email: str, password: str) -> None:
     """Attempt to log in with a wrong password."""
-    response = requests.post(f"{BASE_URL}/sessions",
-                             data={"email": email, "password": password})
-    assert response.status_code == 401, "Expected login to fail with wrong password"
+    response = requests.post(
+        f"{BASE_URL}/sessions", data={"email": email, "password": password}
+    )
+    assert response.status_code == 401, (
+        "Expected login to fail with wrong password"
+    )
 
 
 def log_in(email: str, password: str) -> str:
     """Log in with correct credentials and return the session ID."""
-    response = requests.post(f"{BASE_URL}/sessions",
-                             data={"email": email, "password": password})
+    response = requests.post(
+        f"{BASE_URL}/sessions", data={"email": email, "password": password}
+    )
     assert response.status_code == 200, "Failed to log in"
     session_id = response.cookies.get("session_id")
     assert session_id is not None, "No session_id cookie in response"
@@ -35,7 +42,8 @@ def log_in(email: str, password: str) -> str:
 def profile_unlogged() -> None:
     """Attempt to access profile without being logged in."""
     response = requests.get(f"{BASE_URL}/profile")
-    assert response.status_code == 403, "Expected access to profile to be forbidden"
+    assert response.status_code == 403, \
+        "Expected access to profile to be forbidden"
 
 
 def profile_logged(session_id: str) -> None:
@@ -56,7 +64,8 @@ def log_out(session_id: str) -> None:
 def reset_password_token(email: str) -> str:
     """Get a password reset token."""
     response = requests.post(
-        f"{BASE_URL}/reset_password", data={"email": email})
+        f"{BASE_URL}/reset_password", data={"email": email}
+    )
     assert response.status_code == 200, "Failed to get reset password token"
     token = response.json().get("reset_token")
     assert token is not None, "No reset token in response"
@@ -72,7 +81,9 @@ def update_password(email: str, reset_token: str, new_password: str) -> None:
     )
     assert response.status_code == 200, "Failed to update password"
     assert response.json() == {
-        "email": email, "message": "Password updated"}, "Unexpected response payload"
+        "email": email,
+        "message": "Password updated"
+    }, "Unexpected response payload"
 
 
 EMAIL = "guillaume@holberton.io"
