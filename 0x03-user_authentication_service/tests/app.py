@@ -78,7 +78,26 @@ def logout() -> str:
     if user:
         AUTH.destroy_session(user.id)
         return redirect('/')
-    abort(403)
+    else:
+        abort(403)
+
+
+@app.route('/profile', methods=['GET'], strict_slashes=False)
+def profile() -> str:
+    """Retrieve the user's profile information.
+
+    Sends a GET request to /profile. If the request is successful, it returns
+    the user's email as a JSON payload.
+
+    Returns:
+        str: A JSON payload containing the user's email.
+    """
+    session_id = request.cookies.get('session_id')
+    user = AUTH.get_user_from_session_id(session_id)
+    if user:
+        return jsonify({"email": user.email}), 200
+    else:
+        abort(403)
 
 
 if __name__ == "__main__":
