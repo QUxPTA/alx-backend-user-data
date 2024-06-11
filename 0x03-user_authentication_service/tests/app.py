@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Basic Flask app module for user registration and login."""
-from flask import Flask, request, jsonify, abort, make_response
+from flask import Flask, redirect, request, jsonify, abort, make_response
 from auth import Auth
 
 app = Flask(__name__)
@@ -61,6 +61,24 @@ def login():
     response = make_response(jsonify({"email": email, "message": "logged in"}))
     response.set_cookie("session_id", session_id)
     return response
+
+
+@app.route('/sessions', methods=['DELETE'], strict_slashes=False)
+def logout() -> str:
+    """Handle user logout.
+
+    Sends a DELETE request to /sessions. If the request is successful,
+    it returns a message.
+
+    Returns:
+        str: A message indicating the success of the logout operation.
+    """
+    session_id = request.cookies.get('session_id')
+    user = AUTH.get_user_from_session_id(session_id)
+    if user:
+        AUTH.destroy_session(user.id)
+        return redirect('/')
+    abort(403)
 
 
 if __name__ == "__main__":
