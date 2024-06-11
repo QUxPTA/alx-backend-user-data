@@ -1,14 +1,16 @@
 #!/usr/bin/env python3
 """
-Auth module
+Auth module for user authentication and session management.
 """
-import uuid
+
+from uuid import uuid4
+from db import DB
 import bcrypt
-from db import DB, User
-from sqlalchemy.exc import NoResultFound, InvalidRequestError
+from user import User
+from sqlalchemy.orm.exc import NoResultFound
 
 
-def _hash_password(password: str) -> bytes:
+def _hash_password(password: str) -> str:
     """
     Hash a password using bcrypt.
 
@@ -16,11 +18,9 @@ def _hash_password(password: str) -> bytes:
         password (str): The password to hash.
 
     Returns:
-        bytes: The hashed password.
+        str: The hashed password.
     """
-    salt = bcrypt.gensalt()
-    hashed = bcrypt.hashpw(password.encode('utf-8'), salt)
-    return hashed
+    return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
 
 
 def _generate_uuid() -> str:
@@ -30,7 +30,7 @@ def _generate_uuid() -> str:
     Returns:
         str: The string representation of the UUID.
     """
-    return str(uuid.uuid4())
+    return str(uuid4())
 
 
 class Auth:
@@ -42,7 +42,7 @@ class Auth:
         """
         Initialize a new Auth instance.
 
-        This constructor initializes a new instance of the Auth class and 
+        This constructor initializes a new instance of the Auth class and
         creates an instance of the DB class for database interactions.
         """
         self._db = DB()
@@ -62,15 +62,10 @@ class Auth:
             ValueError: If a user with the provided email already exists.
         """
         try:
-            # Check if the user already exists
             self._db.find_user_by(email=email)
             raise ValueError(f"User {email} already exists")
         except NoResultFound:
-            # User does not exist, proceed to create one
-            hashed_password = _hash_password(password)
-            new_user = self._db.add_user(
-                email=email, hashed_password=hashed_password)
-            return new_user
+            return self._db.add_user(email, _hash_password(password))
 
     def valid_login(self, email: str, password: str) -> bool:
         """
@@ -84,14 +79,10 @@ class Auth:
             bool: True if the login is valid, False otherwise.
         """
         try:
-            # Locate the user by email
             user = self._db.find_user_by(email=email)
-            # Check if the provided password matches the stored hashed password
-            if bcrypt.checkpw(password.encode('utf-8'), user.hashed_password):
-                return True
-            return False
         except NoResultFound:
             return False
+        return bcrypt.checkpw(password.encode('utf-8'), user.hashed_password)
 
     def create_session(self, email: str) -> str:
         """
@@ -104,14 +95,9 @@ class Auth:
             str: The session ID, or None if no user is found.
         """
         try:
-            # Locate the user by email
             user = self._db.find_user_by(email=email)
-            # Generate a new UUID for the session ID
-            session_id = _generate_uuid()
-            # Update the user's session_id in the database
-            self._db.update_user(user.id, session_id=session_id)
-            return session_id
+            sess_id = _generate_uuid()
+            self._db.update_user(user.id, session_id=sess_id)
+            return sess_id
         except NoResultFound:
             return None
-        except InvalidRequestError:
-            raise ValueError("Invalid query arguments")
