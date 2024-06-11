@@ -76,10 +76,12 @@ class DB:
 
         Args:
             user_id (int): The ID of the user to update.
-            **kwargs: Arbitrary keyword arguments to update the user's attributes.
+            **kwargs: Arbitrary keyword arguments to update
+            the user's attributes.
 
         Raises:
-            ValueError: If any argument does not correspond to a user attribute.
+            ValueError: If any argument does not correspond
+            to a user attribute.
         """
         user = self.find_user_by(id=user_id)
 
