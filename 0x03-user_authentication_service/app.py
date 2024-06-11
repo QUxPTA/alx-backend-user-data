@@ -86,8 +86,8 @@ def logout() -> str:
 def profile() -> str:
     """Retrieve the user's profile information.
 
-    Sends a GET request to /profile. If the request is successful,
-    it returns the user's email.
+    Sends a GET request to /profile. If the request is successful, it returns
+    the user's email as a JSON payload.
 
     Returns:
         str: A JSON payload containing the user's email.
@@ -98,6 +98,30 @@ def profile() -> str:
         return jsonify({"email": user.email}), 200
     else:
         abort(403)
+
+
+@app.route('/reset_password', methods=['POST'], strict_slashes=False)
+def get_reset_password_token() -> str:
+    """Handle the request to generate a reset password token.
+
+    POST /reset_password
+
+    Expects form data field: "email".
+
+    Returns:
+        str: A JSON object containing the email and the generated reset token.
+
+    Raises:
+        HTTPException: If the user does not exist,
+        returns a 403 HTTP status code.
+    """
+    email = request.form.get('email')
+    user = AUTH.create_session(email)
+    if not user:
+        abort(403)
+    else:
+        token = AUTH.get_reset_password_token(email)
+        return jsonify({"email": f"{email}", "reset_token": f"{token}"})
 
 
 if __name__ == "__main__":

@@ -100,5 +100,29 @@ def profile() -> str:
         abort(403)
 
 
+@app.route('/reset_password', methods=['POST'], strict_slashes=False)
+def get_reset_password_token() -> str:
+    """Handle the request to generate a reset password token.
+
+    POST /reset_password
+
+    Expects form data field: "email".
+
+    Returns:
+        str: A JSON object containing the email and the generated reset token.
+
+    Raises:
+        HTTPException: If the user does not exist,
+        returns a 403 HTTP status code.
+    """
+    email = request.form.get('email')
+    user = AUTH.create_session(email)
+    if not user:
+        abort(403)
+    else:
+        token = AUTH.get_reset_password_token(email)
+        return jsonify({"email": f"{email}", "reset_token": f"{token}"})
+
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000)
